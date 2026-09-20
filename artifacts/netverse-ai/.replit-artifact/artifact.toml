@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "NetVerse AI"
+description = "An interactive AI ecosystem for exploring search, reasoning, planning, decision-making, constraint solving, and probability through explainable visual experiments."
+version = "1.0.0"
+id = "artifacts/netverse-ai"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23079
+
+[services.development]
+run = "pnpm --filter @workspace/netverse-ai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/netverse-ai", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/netverse-ai/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23079"
+BASE_PATH = "/"

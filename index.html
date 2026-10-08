@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100 scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NETVERSE AI — Where Algorithms Think, Reason, Plan & Decide</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        code,
+        pre,
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .glow-indigo {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+        }
+        
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35);
+        }
+        
+        .glow-rose {
+            box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.35);
+        }
+        /* Grid node animation styles for Pathfinder */
+        
+        .grid-node {
+            transition: background-color 0.15s ease, transform 0.15s ease;
+        }
+        
+        .node-visited {
+            animation: visitedAnimation 0.3s ease-out forwards;
+        }
+        
+        .node-frontier {
+            animation: frontierAnimation 0.3s ease-out forwards;
+        }
+        
+        .node-path {
+            animation: pathAnimation 0.4s ease-out forwards;
+        }
+        
+        @keyframes visitedAnimation {
+            0% {
+                transform: scale(0.3);
+                background-color: rgba(99, 102, 241, 0.2);
+                border-radius: 100%;
+            }
+            50% {
+                background-color: rgba(99, 102, 241, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                background-color: rgba(79, 70, 229, 0.35);
+            }
+        }
+        
+        @keyframes frontierAnimation {
+            0% {
+                transform: scale(0.4);
+                background-color: rgba(6, 182, 212, 0.2);
+            }
+            100% {
+                transform: scale(1);
+                background-color: rgba(6, 182, 212, 0.4);
+            }
+        }
+        
+        @keyframes pathAnimation {
+            0% {
+                transform: scale(0.6);
+                background-color: #f59e0b;
+            }
+            100% {
+                transform: scale(1);
+                background-color: #10b981;
+                box-shadow: 0 0 12px #10b981;
+            }
+        }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+    <canvas id="hero-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
+    <header class="sticky top-0 z-50 h-16 border-b border-slate-800/80 glass-panel px-4 lg:px-8 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="window.switchTab('home')">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">NETVERSE AI</span>
+                <span class="block text-[10px] text-indigo-400/80 font-mono tracking-widest uppercase -mt-1">PBL AI Ecosystem</span>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center space-x-1">
+            <button onclick="window.switchTab('home')" id="nav-home" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/20">Home</button>
+            <button onclick="window.switchTab('explore')" id="nav-explore" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">Explore</button>
+            <button onclick="window.switchTab('pathfinder')" id="nav-pathfinder" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">PathFinder</button>
+            <button onclick="window.switchTab('gamemind')" id="nav-gamemind" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">GameMind</button>
+            <button onclick="window.switchTab('constraintx')" id="nav-constraintx" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">ConstraintX</button>
+            <button onclick="window.switchTab('logicvault')" id="nav-logicvault" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">LogicVault</button>
+            <button onclick="window.switchTab('probabilix')" id="nav-probabilix" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">Probabilix</button>
+            <button onclick="window.switchTab('ailab')" id="nav-ailab" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">AI Lab</button>
+            <button onclick="window.switchTab('learn')" id="nav-learn" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">Syllabus</button>
+            <button onclick="window.switchTab('about')" id="nav-about" class="nav-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all">About</button>
+        </nav>
+
+        <div class="flex items-center space-x-3">
+            <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1.5"></span> Local Engine Ready
+            </span>
+            <button onclick="window.switchTab('explore')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white rounded-lg shadow-lg shadow-indigo-600/30 transition-all">
+                Launch App
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 z-10 relative overflow-y-auto">
+
+        <!-- ==================== PAGE 1: HOME ==================== -->
+        <section id="section-home" class="tab-section px-6 py-12 lg:py-20 max-w-7xl mx-auto space-y-20">
+            <div class="text-center space-y-6 max-w-4xl mx-auto pt-6">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>B.Tech AI PBL Research Project • Course 20CS31003</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
+                    Where Algorithms<br>
+                    <span class="bg-gradient-to-r from-indigo-400 via-violet-300 to-cyan-300 bg-clip-text text-transparent">Think, Reason, Plan & Decide.</span>
+                </h1>
+                <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                    NetVerse AI is an interactive ecosystem that brings classical Artificial Intelligence concepts to life through visual experimentation, intelligent problem solving and explainable execution.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                    <button onclick="window.switchTab('explore')" class="px-7 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm shadow-xl shadow-indigo-600/30 flex items-center space-x-2 transition-all hover:scale-105">
+                        <span>Explore the AI Universe</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="window.switchTab('ailab')" class="px-7 py-3.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold rounded-xl text-sm transition-all flex items-center space-x-2">
+                        <i data-lucide="flask-conical" class="w-4 h-4 text-indigo-400"></i>
+                        <span>Enter AI Lab</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ecosystem Grid -->
+            <div class="space-y-8">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-bold tracking-tight">One Ecosystem. Multiple Ways to Think.</h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Explore interactive modules covering fundamental B.Tech AI syllabus units.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Module Card 1 -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer" onclick="window.switchTab('pathfinder')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                                    <i data-lucide="compass" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-400">Unit I</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">PATHFINDER</h3>
+                            <p class="text-xs text-slate-400 mb-3">Navigate intelligent search spaces with step-by-step frontier animations.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-indigo-300 border border-indigo-500/20">BFS</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-indigo-300 border border-indigo-500/20">DFS</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-indigo-300 border border-indigo-500/20">UCS</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-indigo-300 border border-indigo-500/20">Greedy</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-indigo-300 border border-indigo-500/20">A*</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg text-xs font-semibold border border-indigo-500/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Launch Pathfinder</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Module Card 2 -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer" onclick="window.switchTab('gamemind')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400">
+                                    <i data-lucide="gamepad-2" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-400">Unit II</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">GAMEMIND</h3>
+                            <p class="text-xs text-slate-400 mb-3">Experience adversarial decision-making with minimax tree evaluation.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-violet-300 border border-violet-500/20">Minimax</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-violet-300 border border-violet-500/20">Alpha-Beta Pruning</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white rounded-lg text-xs font-semibold border border-violet-500/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Launch GameMind</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Module Card 3 -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer" onclick="window.switchTab('constraintx')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-400">Unit II</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">CONSTRAINTX</h3>
+                            <p class="text-xs text-slate-400 mb-3">Solve timetable scheduling & N-Queens using MRV backtracking CSP.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-300 border border-emerald-500/20">Backtracking</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-300 border border-emerald-500/20">MRV Heuristic</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-emerald-300 border border-emerald-500/20">N-Queens</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-lg text-xs font-semibold border border-emerald-500/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Launch ConstraintX</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Module Card 4 -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer" onclick="window.switchTab('logicvault')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                    <i data-lucide="git-merge" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-400">Unit III</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">LOGICVAULT</h3>
+                            <p class="text-xs text-slate-400 mb-3">Turn facts into conclusions with Forward Chaining and Truth Tables.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-amber-300 border border-amber-500/20">Forward Chaining</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-amber-300 border border-amber-500/20">Truth Tables</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-white rounded-lg text-xs font-semibold border border-amber-500/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Launch LogicVault</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Module Card 5 -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer" onclick="window.switchTab('probabilix')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                                    <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-400">Unit V</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">PROBABILIX</h3>
+                            <p class="text-xs text-slate-400 mb-3">Reason under uncertainty using Bayes' Theorem and Decision Tree Entropy.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 border border-cyan-500/20">Bayes Rule</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 border border-cyan-500/20">Bayesian Nets</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-cyan-300 border border-cyan-500/20">Entropy</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-2 bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white rounded-lg text-xs font-semibold border border-cyan-500/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Launch Probabilix</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- AI Lab Dashboard Card -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 cursor-pointer border-indigo-500/30" onclick="window.switchTab('ailab')">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="p-3 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white">
+                                    <i data-lucide="activity" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[10px] font-mono px-2.5 py-1 rounded-md bg-indigo-500/20 border border-indigo-500/40 text-indigo-300">BENCHMARK</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-1">AI LAB</h3>
+                            <p class="text-xs text-slate-400 mb-3">Compare efficiency, node expansion, and execution times across algorithms.</p>
+                        </div>
+                        <button class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center space-x-1">
+                            <span>Enter AI Lab</span>
+                            <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 2: EXPLORE AI ==================== -->
+        <section id="section-explore" class="tab-section hidden px-6 py-10 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight">Explore the AI Universe</h2>
+                    <p class="text-slate-400 text-sm mt-1">Select an intelligent module to interact with real algorithms in real time.</p>
+                </div>
+                <!-- Filter Pills -->
+                <div class="flex flex-wrap gap-2">
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">All Modules</button>
+                    <button onclick="window.switchTab('pathfinder')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800">Search</button>
+                    <button onclick="window.switchTab('gamemind')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800">Games</button>
+                    <button onclick="window.switchTab('constraintx')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800">CSP</button>
+                    <button onclick="window.switchTab('logicvault')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800">Logic</button>
+                    <button onclick="window.switchTab('probabilix')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800">Probability</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Detailed Module 1 -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-indigo-400">Unit I • Search</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Interactive</span>
+                        </div>
+                        <h3 class="text-xl font-bold">PathFinder AI</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Visualizes optimal path traversal on a dynamic grid space. Supports custom obstacle placement, wall drawing, and draggable Start and Goal nodes.
+                        </p>
+                    </div>
+                    <button onclick="window.switchTab('pathfinder')" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all">Launch Pathfinder Visualizer</button>
+                </div>
+
+                <!-- Detailed Module 2 -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-violet-400">Unit II • Adversarial Search</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Interactive</span>
+                        </div>
+                        <h3 class="text-xl font-bold">GameMind AI</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Play Tic-Tac-Toe against Minimax AI with Alpha-Beta Pruning. Observe depth limits, evaluated state nodes, and search branch pruning stats.
+                        </p>
+                    </div>
+                    <button onclick="window.switchTab('gamemind')" class="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all">Launch GameMind AI</button>
+                </div>
+
+                <!-- Detailed Module 3 -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-emerald-400">Unit II • CSP</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Interactive</span>
+                        </div>
+                        <h3 class="text-xl font-bold">ConstraintX Suite</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Generate clash-free college timetables using Backtracking CSP with MRV heuristic, and watch N-Queens step-by-step backtracking animation.
+                        </p>
+                    </div>
+                    <button onclick="window.switchTab('constraintx')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all">Launch ConstraintX</button>
+                </div>
+
+                <!-- Detailed Module 4 -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-amber-400">Unit III • Logic</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Interactive</span>
+                        </div>
+                        <h3 class="text-xl font-bold">LogicVault Engine</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Deduce logical facts using step-by-step Forward Chaining with custom rule CRUD management, and generate dynamic Propositional Truth Tables.
+                        </p>
+                    </div>
+                    <button onclick="window.switchTab('logicvault')" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all">Launch LogicVault</button>
+                </div>
+
+                <!-- Detailed Module 5 -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold text-cyan-400">Unit V • Uncertainty</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Interactive</span>
+                        </div>
+                        <h3 class="text-xl font-bold">Probabilix Lab</h3>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Calculate posterior probabilities using Bayes' Theorem, experiment with Bayesian Belief Networks, and compute Decision Tree Shannon Entropy.
+                        </p>
+                    </div>
+                    <button onclick="window.switchTab('probabilix')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all">Launch Probabilix</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 3: PATHFINDER AI ==================== -->
+        <section id="section-pathfinder" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">PathFinder AI — Search Visualizer</h2>
+                    <p class="text-xs text-slate-400">Drag <span class="text-emerald-400 font-bold">S (Start)</span> or <span class="text-rose-400 font-bold">G (Goal)</span> nodes. Click grid cells to toggle walls.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="window.generateMaze()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700">Random Maze</button>
+                    <button onclick="window.clearPathfinderWalls()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700">Clear Walls</button>
+                    <button onclick="window.resetPathfinderGrid()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700">Reset Search</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Left Control Panel -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Select Algorithm</label>
+                        <select id="pf-algo" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="AStar">A* Search (g(n) + h(n))</option>
+                            <option value="BFS">Breadth-First Search (Level-by-Level)</option>
+                            <option value="DFS">Depth-First Search (Deep Traversal)</option>
+                            <option value="UCS">Uniform Cost Search (Dijkstra)</option>
+                            <option value="Greedy">Greedy Best-First Search</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Visualization Speed</span>
+                            <span id="speed-label">Fast (15ms)</span>
+                        </div>
+                        <input type="range" id="pf-speed" min="5" max="80" value="15" oninput="document.getElementById('speed-label').innerText = `${this.value}ms`" class="w-full accent-indigo-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                    </div>
+
+                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 space-y-2 text-xs">
+                        <div class="font-semibold text-slate-300 border-b border-slate-800 pb-1">Legend</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-emerald-500"></span><span>Start (S)</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-rose-500"></span><span>Goal (G)</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-slate-700"></span><span>Wall Block</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-indigo-500/60"></span><span>Visited</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-cyan-400"></span><span>Frontier</span></div>
+                            <div class="flex items-center space-x-2"><span class="w-3 h-3 rounded bg-amber-400"></span><span>Path</span></div>
+                        </div>
+                    </div>
+
+                    <button onclick="window.runPathfinder()" id="btn-run-pf" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all">
+                        <i data-lucide="play" class="w-4 h-4"></i>
+                        <span>Start Search Execution</span>
+                    </button>
+
+                    <!-- Real-Time Metrics Box -->
+                    <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-2 text-xs">
+                        <div class="font-semibold text-indigo-400">Search Metrics</div>
+                        <div class="flex justify-between text-slate-400"><span>Status:</span><span id="pf-status" class="text-slate-200 font-mono">Idle</span></div>
+                        <div class="flex justify-between text-slate-400"><span>Nodes Explored:</span><span id="pf-nodes" class="text-slate-200 font-mono">0</span></div>
+                        <div class="flex justify-between text-slate-400"><span>Path Length:</span><span id="pf-length" class="text-slate-200 font-mono">0 steps</span></div>
+                        <div class="flex justify-between text-slate-400"><span>Execution Time:</span><span id="pf-time" class="text-slate-200 font-mono">0 ms</span></div>
+                    </div>
+                </div>
+
+                <!-- Main Grid Area -->
+                <div class="lg:col-span-3 glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div id="pf-grid-container" class="w-full h-[480px] bg-slate-950 rounded-xl p-2 grid gap-1 overflow-hidden select-none border border-slate-800/80">
+                        <!-- Dynamically populated grid -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 4: GAMEMIND ==================== -->
+        <section id="section-gamemind" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold tracking-tight">GameMind — Adversarial Minimax AI</h2>
+                <p class="text-xs text-slate-400">Human vs AI Tic-Tac-Toe powered by Minimax Search with Alpha-Beta Pruning.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Tic-Tac-Toe Board Area -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center space-y-6">
+                    <div class="flex items-center space-x-4 text-xs">
+                        <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">You: X (Human)</span>
+                        <span class="px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-medium">AI: O (Minimax)</span>
+                    </div>
+
+                    <div id="ttt-board" class="grid grid-cols-3 gap-3 w-64 h-64 bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-xl">
+                        <!-- 9 Board Cells -->
+                    </div>
+
+                    <div id="ttt-status" class="text-sm font-semibold text-slate-300">Your Turn (Click any cell)</div>
+
+                    <button onclick="window.resetTTT()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700">
+                        Restart Game
+                    </button>
+                </div>
+
+                <!-- AI Decision Controls & Stats -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-sm font-semibold text-slate-200 border-b border-slate-800 pb-2">AI Search Configuration</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Max Search Depth</label>
+                            <input type="range" id="ttt-depth" min="1" max="9" value="9" oninput="document.getElementById('ttt-depth-val').innerText = this.value" class="w-full accent-indigo-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                            <div class="text-right text-[10px] text-slate-400 mt-1">Depth: <span id="ttt-depth-val" class="font-bold text-indigo-400">9</span> (Full Tree)</div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                            <div>
+                                <div class="text-xs font-semibold text-slate-200">Alpha-Beta Pruning</div>
+                                <div class="text-[10px] text-slate-400">Prune non-optimal branches</div>
+                            </div>
+                            <input type="checkbox" id="ttt-ab-toggle" checked class="w-4 h-4 accent-indigo-600 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Live Decision Tree Metrics -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 text-center">
+                            <div class="text-[10px] text-slate-400">Evaluated Nodes</div>
+                            <div id="ttt-nodes-eval" class="text-2xl font-bold text-indigo-400 font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 text-center">
+                            <div class="text-[10px] text-slate-400">Pruning Efficiency</div>
+                            <div id="ttt-prune-eff" class="text-2xl font-bold text-emerald-400 font-mono mt-1">0%</div>
+                        </div>
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 text-center">
+                            <div class="text-[10px] text-slate-400">AI Evaluation Score</div>
+                            <div id="ttt-eval-score" class="text-2xl font-bold text-purple-400 font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 text-center">
+                            <div class="text-[10px] text-slate-400">Inference Time</div>
+                            <div id="ttt-time" class="text-2xl font-bold text-cyan-400 font-mono mt-1">0 ms</div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                        <span class="font-semibold text-slate-200">How Minimax Works:</span> The AI assumes both players play optimally. Maximize score for AI (<code class="text-indigo-400">O</code>), minimize score for Human (<code class="text-indigo-400">X</code>).
+                        Alpha-Beta pruning discards evaluation trees that cannot yield better moves than previously explored branches.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 5: CONSTRAINTX ==================== -->
+        <section id="section-constraintx" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">ConstraintX — Constraint Satisfaction Engine</h2>
+                    <p class="text-xs text-slate-400">Solve NP-complete allocation problems using Backtracking Search & Constraint Propagation.</p>
+                </div>
+                <!-- Toggle Sub-modules -->
+                <div class="flex space-x-2">
+                    <button onclick="window.switchCSPMode('timetable')" id="csp-tab-timetable" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white">Smart Timetable</button>
+                    <button onclick="window.switchCSPMode('nqueens')" id="csp-tab-nqueens" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800">N-Queens Solver</button>
+                </div>
+            </div>
+
+            <!-- SUB-MODULE 1: TIMETABLE GENERATOR -->
+            <div id="csp-view-timetable" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Timetable CRUD Inputs -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-slate-200">Scheduling Inputs</h3>
+                            <button onclick="window.loadTimetablePreset()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 text-[10px] font-bold rounded border border-slate-700">Load Preset</button>
+                        </div>
+
+                        <!-- Subjects -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Subjects (Comma Separated)</label>
+                            <input type="text" id="tt-subjects" value="AI_Lab, Operating_Systems, Computer_Networks, Machine_Learning" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <!-- Faculty -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Faculty Members</label>
+                            <input type="text" id="tt-faculty" value="Dr_Sharma, Prof_Verma, Dr_Reddy, Prof_Anand" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <!-- Rooms -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Rooms / Labs</label>
+                            <input type="text" id="tt-rooms" value="Lab_101, Room_202, Room_203" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <button onclick="window.solveTimetableCSP()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition-all">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                            <span>Generate Conflict-Free Schedule</span>
+                        </button>
+                    </div>
+
+                    <!-- Timetable Output Display -->
+                    <div class="lg:col-span-2 glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-slate-200">Generated Timetable Matrix</h3>
+                            <span id="tt-status" class="text-xs text-slate-400 font-mono">Ready to solve</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-800 bg-slate-900/80 text-slate-400">
+                                        <th class="p-3">Time Slot</th>
+                                        <th class="p-3">Subject</th>
+                                        <th class="p-3">Faculty</th>
+                                        <th class="p-3">Assigned Room</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tt-matrix" class="divide-y divide-slate-800/60">
+                                    <tr>
+                                        <td colspan="4" class="p-6 text-center text-slate-500">Click "Generate Conflict-Free Schedule" to execute CSP Backtracking algorithm.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MODULE 2: N-QUEENS SOLVER -->
+            <div id="csp-view-nqueens" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-200">N-Queens Parameters</h3>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Board Dimension (N x N)</label>
+                            <input type="range" id="nq-size" min="4" max="10" value="8" oninput="document.getElementById('nq-size-val').innerText = `${this.value}x${this.value}`" class="w-full accent-emerald-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                            <div class="text-right text-[10px] text-slate-400 mt-1">Size: <span id="nq-size-val" class="font-bold text-emerald-400">8x8</span></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Step Delay</label>
+                            <input type="range" id="nq-speed" min="20" max="300" value="80" class="w-full accent-emerald-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                        </div>
+
+                        <button onclick="window.solveNQueens()" id="btn-nq-solve" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg transition-all">
+                            Start N-Queens Backtracking
+                        </button>
+
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-2 text-xs">
+                            <div class="font-semibold text-emerald-400">Backtracking Metrics</div>
+                            <div class="flex justify-between text-slate-400"><span>Placements Tried:</span><span id="nq-steps" class="text-slate-200 font-mono">0</span></div>
+                            <div class="flex justify-between text-slate-400"><span>Backtracks Executed:</span><span id="nq-backtracks" class="text-slate-200 font-mono">0</span></div>
+                            <div class="flex justify-between text-slate-400"><span>Valid Solutions:</span><span id="nq-solutions" class="text-slate-200 font-mono">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- N-Queens Canvas Board -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col items-center justify-center space-y-4">
+                        <div id="nq-board-container" class="w-80 h-80 bg-slate-950 p-2 rounded-xl border border-slate-800 grid gap-1 relative overflow-hidden">
+                            <!-- Dynamically populated board grid -->
+                        </div>
+                        <div id="nq-status" class="text-xs font-semibold text-slate-300">Select board size and click Start.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 6: LOGICVAULT ==================== -->
+        <section id="section-logicvault" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">LogicVault — Rule Engine & Deduction</h2>
+                    <p class="text-xs text-slate-400">Forward Chaining Modus Ponens deduction & Propositional Truth Table generator.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="window.switchLogicMode('forward')" id="logic-tab-forward" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 text-white">Forward Chaining</button>
+                    <button onclick="window.switchLogicMode('truthtable')" id="logic-tab-truthtable" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800">Truth Table Generator</button>
+                </div>
+            </div>
+
+            <!-- SUB-MODULE 1: FORWARD CHAINING -->
+            <div id="logic-view-forward" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Rule & Fact Management Controls -->
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-5">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <h3 class="text-sm font-semibold text-slate-200">Knowledge Base</h3>
+                            <button onclick="window.loadLogicPreset('medical')" class="text-[10px] text-amber-400 hover:underline">Load Preset</button>
+                        </div>
+
+                        <!-- Facts CRUD -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Initial Facts</label>
+                            <div id="facts-badge-container" class="flex flex-wrap gap-1.5 mb-2">
+                                <!-- Fact badges -->
+                            </div>
+                            <div class="flex space-x-2">
+                                <input type="text" id="input-new-fact" placeholder="Add fact (e.g. Fever)" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none">
+                                <button onclick="window.addFact()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold rounded-xl border border-slate-700">+ Add</button>
+                            </div>
+                        </div>
+
+                        <!-- Rules CRUD -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Inference Rules (<code class="text-amber-400">P1, P2 -> Conclusion</code>)</label>
+                            <div id="rules-list-container" class="space-y-1.5 mb-2 max-h-36 overflow-y-auto pr-1">
+                                <!-- Rule badges -->
+                            </div>
+                            <div class="flex space-x-2">
+                                <input type="text" id="input-new-rule" placeholder="Fever, Cough -> Flu" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none">
+                                <button onclick="window.addRule()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold rounded-xl border border-slate-700">+ Add</button>
+                            </div>
+                        </div>
+
+                        <!-- Query Goal -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Goal Premise to Deduce</label>
+                            <input type="text" id="lv-goal" value="Flu" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                        </div>
+
+                        <button onclick="window.runForwardChaining()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-amber-600/30 flex items-center justify-center space-x-2 transition-all">
+                            <i data-lucide="play" class="w-4 h-4"></i>
+                            <span>Execute Forward Chaining</span>
+                        </button>
+                    </div>
+
+                    <!-- Execution Reasoning Output -->
+                    <div class="lg:col-span-2 glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-200">Deduction Execution Log</h3>
+                        <div id="lv-log" class="w-full h-80 bg-slate-950 rounded-xl p-4 font-mono text-xs text-slate-300 overflow-y-auto leading-relaxed border border-slate-800/80">
+                            Click "Execute Forward Chaining" to start deduction engine...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MODULE 2: TRUTH TABLE GENERATOR -->
+            <div id="logic-view-truthtable" class="hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Propositional Logic Expression</label>
+                            <input type="text" id="tt-expression" value="(P AND Q) -> R" placeholder="(P AND Q) -> R" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 font-mono focus:outline-none focus:border-amber-500">
+                            <p class="text-[10px] text-slate-500 mt-1">Supported operators: <code class="text-amber-400">AND</code>, <code class="text-amber-400">OR</code>, <code class="text-amber-400">NOT</code>, <code class="text-amber-400">-&gt;</code> (Implies), <code class="text-amber-400">&lt;-&gt;</code>                                (Biconditional).</p>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="window.generateTruthTable()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg transition-all">
+                                Generate Truth Table
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tt-classification" class="hidden p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold">
+                        <!-- Classification outcome badge -->
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-center border-collapse">
+                            <thead id="truth-table-head" class="bg-slate-900 text-slate-300 border-b border-slate-800">
+                                <!-- Dynamic Headers -->
+                            </thead>
+                            <tbody id="truth-table-body" class="divide-y divide-slate-800/60 font-mono">
+                                <tr>
+                                    <td class="p-4 text-slate-500" colspan="4">Enter an expression and click Generate.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 7: PROBABILIX ==================== -->
+        <section id="section-probabilix" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold tracking-tight">Probabilix — Uncertainty Laboratory</h2>
+                <p class="text-xs text-slate-400">Reason under uncertainty with Bayes' Theorem and Decision Tree Shannon Entropy.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Bayes Calculator -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                    <h3 class="text-sm font-semibold text-slate-200 border-b border-slate-800 pb-2">Bayes' Theorem Calculator</h3>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Prior Probability P(A) [e.g. Disease Present]</span>
+                            <span id="bayes-pa-val" class="font-bold text-cyan-400">0.02</span>
+                        </div>
+                        <input type="range" id="bayes-pa" min="0.001" max="0.5" step="0.001" value="0.02" oninput="window.updateBayes()" class="w-full accent-cyan-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Likelihood P(B|A) [True Positive Rate]</span>
+                            <span id="bayes-pba-val" class="font-bold text-cyan-400">0.95</span>
+                        </div>
+                        <input type="range" id="bayes-pba" min="0.1" max="1.0" step="0.01" value="0.95" oninput="window.updateBayes()" class="w-full accent-cyan-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>False Positive P(B|~A) [Test Positive without Disease]</span>
+                            <span id="bayes-pbna-val" class="font-bold text-cyan-400">0.05</span>
+                        </div>
+                        <input type="range" id="bayes-pbna" min="0.01" max="0.5" step="0.01" value="0.05" oninput="window.updateBayes()" class="w-full accent-cyan-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer">
+                    </div>
+
+                    <div class="p-4 bg-slate-900/90 rounded-xl border border-slate-800 text-center space-y-1">
+                        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Posterior Probability P(A|B)</div>
+                        <div id="bayes-result" class="text-3xl font-extrabold text-cyan-400 font-mono">27.94%</div>
+                        <p id="bayes-formula" class="text-[11px] text-slate-400 font-mono mt-1">P(A|B) = (0.95 * 0.02) / P(B)</p>
+                    </div>
+                </div>
+
+                <!-- Decision Tree Entropy Calculator -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                    <h3 class="text-sm font-semibold text-slate-200 border-b border-slate-800 pb-2">Decision Tree Shannon Entropy</h3>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Class Sample Distribution (Comma Separated)</label>
+                        <input type="text" id="entropy-samples" value="9, 5" oninput="window.updateEntropy()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500">
+                        <p class="text-[10px] text-slate-500 mt-1">Example: <code class="text-cyan-400">9, 5</code> (9 Yes, 5 No decisions)</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/90 rounded-xl border border-slate-800 text-center space-y-1">
+                        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Calculated Entropy H(S)</div>
+                        <div id="entropy-result" class="text-3xl font-extrabold text-indigo-400 font-mono">0.940 bits</div>
+                        <p id="entropy-formula" class="text-[11px] text-slate-400 font-mono mt-1">- (9/14 * log2(9/14) + 5/14 * log2(5/14))</p>
+                    </div>
+
+                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                        Entropy measures node impurity in Decision Trees. <code class="text-cyan-400">H(S) = 0</code> indicates pure single-class node; <code class="text-cyan-400">H(S) = 1.0</code> represents maximum uncertainty.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 8: AI LAB BENCHMARK ==================== -->
+        <section id="section-ailab" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">AI LAB — Experimentation & Benchmarks</h2>
+                    <p class="text-xs text-slate-400">Unified evaluation center comparing algorithm node expansion, cost, and execution speed.</p>
+                </div>
+                <button onclick="window.runAILabSuite()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 flex items-center space-x-2 transition-all">
+                    <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                    <span>Run Comparative Benchmark</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Search Comparison Bar Chart -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200">Search Space Nodes Explored</h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-search-nodes"></canvas>
+                    </div>
+                </div>
+
+                <!-- Algorithm Radar Profile -->
+                <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200">Efficiency Radar Profile</h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-radar-profile"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 9: SYLLABUS / LEARN ==================== -->
+        <section id="section-learn" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold tracking-tight">AI Course Syllabus & Documentation</h2>
+                <p class="text-xs text-slate-400">Complete curriculum mapping for B.Tech CSE Artificial Intelligence (20CS31003).</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Unit 1 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">UNIT I</span>
+                        <h3 class="text-lg font-bold">Search & Intelligent Agents</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Problem formulation, state space graph representation, uninformed search strategies (BFS, DFS, Uniform Cost Search), informed heuristic search (Greedy Best-First, A* Search), admissibility and consistency of heuristics.
+                    </p>
+                </div>
+
+                <!-- Unit 2 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-violet-500/20 text-violet-300 border border-violet-500/30">UNIT II</span>
+                        <h3 class="text-lg font-bold">Adversarial Search & CSP</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Game theory, Minimax algorithm, Alpha-Beta pruning, Constraint Satisfaction Problems (CSP), Backtracking search, Minimum Remaining Values (MRV) heuristic, constraint propagation.
+                    </p>
+                </div>
+
+                <!-- Unit 3 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">UNIT III</span>
+                        <h3 class="text-lg font-bold">Knowledge & Reasoning</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Knowledge-based agents, Propositional logic, Modus Ponens, Forward and Backward chaining, resolution, First-Order Logic (FOL), unification.
+                    </p>
+                </div>
+
+                <!-- Unit 4 & 5 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">UNIT IV & V</span>
+                        <h3 class="text-lg font-bold">Uncertainty & Decision Learning</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Quantifying uncertainty, Bayes' Rule, Bayesian belief networks, Decision Tree induction, Information Gain, Shannon Entropy.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== PAGE 10: ABOUT ==================== -->
+        <section id="section-about" class="tab-section hidden px-6 py-8 max-w-7xl mx-auto space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold tracking-tight">Built as an Academic AI Ecosystem</h2>
+                <p class="text-xs text-slate-400">Project Based Learning (PBL) Implementation Details</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-slate-200">Academic Project Metadata</h3>
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <div class="flex justify-between py-1 border-b border-slate-800/60"><span class="text-slate-400">Course:</span><span>Artificial Intelligence</span></div>
+                        <div class="flex justify-between py-1 border-b border-slate-800/60"><span class="text-slate-400">Course Code:</span><span class="font-mono text-indigo-400">20CS31003</span></div>
+                        <div class="flex justify-between py-1 border-b border-slate-800/60"><span class="text-slate-400">Program:</span><span>B.Tech Computer Science Engineering</span></div>
+                        <div class="flex justify-between py-1 border-b border-slate-800/60"><span class="text-slate-400">Academic Term:</span><span>III Year – I Semester</span></div>
+                        <div class="flex justify-between py-1"><span class="text-slate-400">Implementation:</span><span>100% Client-Side Pure Local AI Execution</span></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-slate-200">Student Project Team</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs">M1</div>
+                            <div>
+                                <div class="text-xs font-semibold">Team Member 01</div>
+                                <div class="text-[10px] text-slate-400">Roll No: 20CS31003-01</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center font-bold text-xs">M2</div>
+                            <div>
+                                <div class="text-xs font-semibold">Team Member 02</div>
+                                <div class="text-[10px] text-slate-400">Roll No: 20CS31003-02</div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs">M3</div>
+                            <div>
+                                <div class="text-xs font-semibold">Team Member 03</div>
+                                <div class="text-[10px] text-slate-400">Roll No: 20CS31003-03</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById(`section-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+                btn.classList.add('text-slate-300');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/20');
+            }
+
+            if (tabId === 'pathfinder') window.initPathfinderGrid();
+            if (tabId === 'gamemind') window.resetTTT();
+            if (tabId === 'logicvault') {
+                window.renderFactsBadges();
+                window.renderRulesBadges();
+            }
+            if (tabId === 'probabilix') {
+                window.updateBayes();
+                window.updateEntropy();
+            }
+            if (tabId === 'ailab') setTimeout(window.runAILabSuite, 50);
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
+        function initParticleCanvas() {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = Array.from({
+                length: 45
+            }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                r: Math.random() * 2 + 1
+            }));
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.4)';
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.1)';
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > width) p.vx *= -1;
+                    if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        const PF_ROWS = 15;
+        const PF_COLS = 28;
+        let pfGrid = [];
+        let startPos = {
+            r: 2,
+            c: 2
+        };
+        let goalPos = {
+            r: 12,
+            c: 25
+        };
+        let isMouseDown = false;
+        let dragTarget = null; // 'start', 'goal', or 'wall'
+
+        window.initPathfinderGrid = function() {
+            const container = document.getElementById('pf-grid-container');
+            if (!container) return;
+            container.style.gridTemplateColumns = `repeat(${PF_COLS}, minmax(0, 1fr))`;
+            container.innerHTML = '';
+            pfGrid = [];
+
+            for (let r = 0; r < PF_ROWS; r++) {
+                pfGrid[r] = [];
+                for (let c = 0; c < PF_COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-node border border-slate-800/50 rounded flex items-center justify-center text-[10px] font-bold cursor-pointer bg-slate-900/60';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+
+                    pfGrid[r][c] = {
+                        r,
+                        c,
+                        isWall: false,
+                        isVisited: false,
+                        isPath: false,
+                        cellElem: cell
+                    };
+
+                    cell.addEventListener('mousedown', (e) => {
+                        isMouseDown = true;
+                        if (r === startPos.r && c === startPos.c) dragTarget = 'start';
+                        else if (r === goalPos.r && c === goalPos.c) dragTarget = 'goal';
+                        else {
+                            dragTarget = 'wall';
+                            window.toggleWall(r, c);
+                        }
+                    });
+
+                    cell.addEventListener('mouseenter', () => {
+                        if (!isMouseDown) return;
+                        if (dragTarget === 'start') {
+                            startPos = {
+                                r,
+                                c
+                            };
+                            window.updateGridElements();
+                        } else if (dragTarget === 'goal') {
+                            goalPos = {
+                                r,
+                                c
+                            };
+                            window.updateGridElements();
+                        } else if (dragTarget === 'wall') {
+                            window.toggleWall(r, c, true);
+                        }
+                    });
+
+                    container.appendChild(cell);
+                }
+            }
+            window.updateGridElements();
+        };
+
+        window.updateGridElements = function() {
+            for (let r = 0; r < PF_ROWS; r++) {
+                for (let c = 0; c < PF_COLS; c++) {
+                    const node = pfGrid[r][c];
+                    const elem = node.cellElem;
+                    elem.className = 'grid-node border border-slate-800/50 rounded flex items-center justify-center text-[10px] font-bold cursor-pointer ';
+                    elem.innerText = '';
+
+                    if (r === startPos.r && c === startPos.c) {
+                        elem.classList.add('bg-emerald-500', 'text-white', 'shadow-md', 'shadow-emerald-500/50');
+                        elem.innerText = 'S';
+                    } else if (r === goalPos.r && c === goalPos.c) {
+                        elem.classList.add('bg-rose-500', 'text-white', 'shadow-md', 'shadow-rose-500/50');
+                        elem.innerText = 'G';
+                    } else if (node.isPath) {
+                        elem.classList.add('node-path');
+                    } else if (node.isVisited) {
+                        elem.classList.add('node-visited');
+                    } else if (node.isWall) {
+                        elem.classList.add('bg-slate-700');
+                    } else {
+                        elem.classList.add('bg-slate-900/60', 'hover:bg-slate-800');
+                    }
+                }
+            }
+        };
+
+        window.toggleWall = function(r, c, forceWall = false) {
+            if ((r === startPos.r && c === startPos.c) || (r === goalPos.r && c === goalPos.c)) return;
+            pfGrid[r][c].isWall = forceWall ? true : !pfGrid[r][c].isWall;
+            window.updateGridElements();
+        };
+
+        window.clearPathfinderWalls = function() {
+            for (let r = 0; r < PF_ROWS; r++) {
+                for (let c = 0; c < PF_COLS; c++) {
+                    pfGrid[r][c].isWall = false;
+                }
+            }
+            window.resetPathfinderGrid();
+        };
+
+        window.resetPathfinderGrid = function() {
+            for (let r = 0; r < PF_ROWS; r++) {
+                for (let c = 0; c < PF_COLS; c++) {
+                    pfGrid[r][c].isVisited = false;
+                    pfGrid[r][c].isPath = false;
+                }
+            }
+            document.getElementById('pf-status').innerText = 'Idle';
+            document.getElementById('pf-nodes').innerText = '0';
+            document.getElementById('pf-length').innerText = '0 steps';
+            document.getElementById('pf-time').innerText = '0 ms';
+            window.updateGridElements();
+        };
+
+        window.generateMaze = function() {
+            window.clearPathfinderWalls();
+            for (let r = 0; r < PF_ROWS; r++) {
+                for (let c = 0; c < PF_COLS; c++) {
+                    if (Math.random() < 0.28) {
+                        window.toggleWall(r, c, true);
+                    }
+                }
+            }
+        };
+
+        window.runPathfinder = async function() {
+            window.resetPathfinderGrid();
+            const algo = document.getElementById('pf-algo').value;
+            const speed = parseInt(document.getElementById('pf-speed').value);
+            document.getElementById('pf-status').innerText = 'Searching...';
+
+            const startTime = performance.now();
+            let visitedOrder = [];
+            let path = [];
+            let found = false;
+
+            // Algorithm Dispatcher
+            if (algo === 'BFS' || algo === 'DFS') {
+                const stackOrQueue = [{
+                    r: startPos.r,
+                    c: startPos.c,
+                    parent: null
+                }];
+                const visited = new Set();
+                const parentMap = new Map();
+
+                while (stackOrQueue.length > 0) {
+                    const curr = algo === 'BFS' ? stackOrQueue.shift() : stackOrQueue.pop();
+                    const key = `${curr.r},${curr.c}`;
+
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    visitedOrder.push(curr);
+
+                    if (curr.r === goalPos.r && curr.c === goalPos.c) {
+                        found = true;
+                        let p = curr;
+                        while (p) {
+                            path.push(p);
+                            p = p.parent;
+                        }
+                        break;
+                    }
+
+                    const neighbors = [{
+                        r: curr.r - 1,
+                        c: curr.c
+                    }, {
+                        r: curr.r + 1,
+                        c: curr.c
+                    }, {
+                        r: curr.r,
+                        c: curr.c - 1
+                    }, {
+                        r: curr.r,
+                        c: curr.c + 1
+                    }];
+
+                    for (const n of neighbors) {
+                        if (n.r >= 0 && n.r < PF_ROWS && n.c >= 0 && n.c < PF_COLS) {
+                            if (!pfGrid[n.r][n.c].isWall && !visited.has(`${n.r},${n.c}`)) {
+                                stackOrQueue.push({
+                                    r: n.r,
+                                    c: n.c,
+                                    parent: curr
+                                });
+                            }
+                        }
+                    }
+                }
+            } else if (algo === 'AStar' || algo === 'UCS' || algo === 'Greedy') {
+                const openSet = [{
+                    r: startPos.r,
+                    c: startPos.c,
+                    g: 0,
+                    h: 0,
+                    f: 0,
+                    parent: null
+                }];
+                const visited = new Set();
+
+                while (openSet.length > 0) {
+                    openSet.sort((a, b) => a.f - b.f);
+                    const curr = openSet.shift();
+                    const key = `${curr.r},${curr.c}`;
+
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    visitedOrder.push(curr);
+
+                    if (curr.r === goalPos.r && curr.c === goalPos.c) {
+                        found = true;
+                        let p = curr;
+                        while (p) {
+                            path.push(p);
+                            p = p.parent;
+                        }
+                        break;
+                    }
+
+                    const neighbors = [{
+                        r: curr.r - 1,
+                        c: curr.c
+                    }, {
+                        r: curr.r + 1,
+                        c: curr.c
+                    }, {
+                        r: curr.r,
+                        c: curr.c - 1
+                    }, {
+                        r: curr.r,
+                        c: curr.c + 1
+                    }];
+
+                    for (const n of neighbors) {
+                        if (n.r >= 0 && n.r < PF_ROWS && n.c >= 0 && n.c < PF_COLS) {
+                            if (!pfGrid[n.r][n.c].isWall && !visited.has(`${n.r},${n.c}`)) {
+                                const g = curr.g + 1;
+                                const h = Math.abs(n.r - goalPos.r) + Math.abs(n.c - goalPos.c);
+                                const f = algo === 'AStar' ? g + h : algo === 'Greedy' ? h : g;
+                                openSet.push({
+                                    r: n.r,
+                                    c: n.c,
+                                    g,
+                                    h,
+                                    f,
+                                    parent: curr
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Animate Visited Nodes
+            for (let i = 0; i < visitedOrder.length; i++) {
+                const node = visitedOrder[i];
+                if ((node.r !== startPos.r || node.c !== startPos.c) && (node.r !== goalPos.r || node.c !== goalPos.c)) {
+                    pfGrid[node.r][node.c].isVisited = true;
+                    pfGrid[node.r][node.c].cellElem.classList.add('node-visited');
+                }
+                document.getElementById('pf-nodes').innerText = i + 1;
+                await new Promise(r => setTimeout(r, speed));
+            }
+
+            const endTime = performance.now();
+            document.getElementById('pf-time').innerText = `${Math.round(endTime - startTime)} ms`;
+
+            if (found) {
+                document.getElementById('pf-status').innerText = 'Path Found!';
+                for (let i = path.length - 1; i >= 0; i--) {
+                    const node = path[i];
+                    if ((node.r !== startPos.r || node.c !== startPos.c) && (node.r !== goalPos.r || node.c !== goalPos.c)) {
+                        pfGrid[node.r][node.c].isPath = true;
+                        pfGrid[node.r][node.c].cellElem.classList.add('node-path');
+                    }
+                    await new Promise(r => setTimeout(r, 20));
+                }
+                document.getElementById('pf-length').innerText = `${path.length} steps`;
+            } else {
+                document.getElementById('pf-status').innerText = 'No Path Exists!';
+            }
+        };
+
+        window.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            dragTarget = null;
+        });
+
+        let tttBoard = Array(9).fill(null);
+
+        window.resetTTT = function() {
+            tttBoard = Array(9).fill(null);
+            const container = document.getElementById('ttt-board');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'w-full h-full bg-slate-950 hover:bg-slate-800 rounded-xl border border-slate-800 text-2xl font-bold flex items-center justify-center transition-all';
+                btn.onclick = () => window.handleTTTClick(i);
+                container.appendChild(btn);
+            }
+            document.getElementById('ttt-status').innerText = 'Your Turn (Click any cell)';
+            document.getElementById('ttt-nodes-eval').innerText = '0';
+            document.getElementById('ttt-prune-eff').innerText = '0%';
+        };
+
+        window.handleTTTClick = function(idx) {
+            if (tttBoard[idx] || checkTTTWinner(tttBoard)) return;
+
+            tttBoard[idx] = 'X';
+            updateTTTUI();
+
+            if (checkTTTWinner(tttBoard)) {
+                document.getElementById('ttt-status').innerText = checkTTTWinner(tttBoard) === 'X' ? 'You Win!' : 'Game Draw!';
+                return;
+            }
+
+            document.getElementById('ttt-status').innerText = 'AI Thinking...';
+            setTimeout(window.makeAIMove, 200);
+        };
+
+        window.makeAIMove = function() {
+            let nodesEval = 0;
+            let prunedBranches = 0;
+            const useAB = document.getElementById('ttt-ab-toggle').checked;
+            const maxDepth = parseInt(document.getElementById('ttt-depth').value);
+            const startTime = performance.now();
+
+            function minimax(board, depth, alpha, beta, isMax) {
+                nodesEval++;
+                const winner = checkTTTWinner(board);
+                if (winner === 'O') return 10 - depth;
+                if (winner === 'X') return depth - 10;
+                if (winner === 'Draw' || depth >= maxDepth) return 0;
+
+                if (isMax) {
+                    let best = -Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (!board[i]) {
+                            board[i] = 'O';
+                            const val = minimax(board, depth + 1, alpha, beta, false);
+                            board[i] = null;
+                            best = Math.max(best, val);
+                            alpha = Math.max(alpha, best);
+                            if (useAB && beta <= alpha) {
+                                prunedBranches++;
+                                break;
+                            }
+                        }
+                    }
+                    return best;
+                } else {
+                    let best = Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (!board[i]) {
+                            board[i] = 'X';
+                            const val = minimax(board, depth + 1, alpha, beta, true);
+                            board[i] = null;
+                            best = Math.min(best, val);
+                            beta = Math.min(beta, best);
+                            if (useAB && beta <= alpha) {
+                                prunedBranches++;
+                                break;
+                            }
+                        }
+                    }
+                    return best;
+                }
+            }
+
+            let bestVal = -Infinity;
+            let bestMove = -1;
+
+            for (let i = 0; i < 9; i++) {
+                if (!tttBoard[i]) {
+                    tttBoard[i] = 'O';
+                    const moveVal = minimax(tttBoard, 0, -Infinity, Infinity, false);
+                    tttBoard[i] = null;
+                    if (moveVal > bestVal) {
+                        bestVal = moveVal;
+                        bestMove = i;
+                    }
+                }
+            }
+
+            const endTime = performance.now();
+            if (bestMove !== -1) tttBoard[bestMove] = 'O';
+            updateTTTUI();
+
+            document.getElementById('ttt-nodes-eval').innerText = nodesEval;
+            document.getElementById('ttt-prune-eff').innerText = useAB ? `${Math.round((prunedBranches / (nodesEval + 1)) * 100)}%` : '0%';
+            document.getElementById('ttt-eval-score').innerText = bestVal;
+            document.getElementById('ttt-time').innerText = `${Math.round(endTime - startTime)} ms`;
+
+            const win = checkTTTWinner(tttBoard);
+            if (win) {
+                document.getElementById('ttt-status').innerText = win === 'O' ? 'AI Wins!' : win === 'Draw' ? 'Game Draw!' : 'You Win!';
+            } else {
+                document.getElementById('ttt-status').innerText = 'Your Turn';
+            }
+        };
+
+        function checkTTTWinner(b) {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+            for (const [x, y, z] of lines) {
+                if (b[x] && b[x] === b[y] && b[x] === b[z]) return b[x];
+            }
+            if (b.every(c => c)) return 'Draw';
+            return null;
+        }
+
+        function updateTTTUI() {
+            const btns = document.getElementById('ttt-board').children;
+            for (let i = 0; i < 9; i++) {
+                btns[i].innerText = tttBoard[i] || '';
+                btns[i].className = `w-full h-full bg-slate-950 hover:bg-slate-800 rounded-xl border border-slate-800 text-2xl font-bold flex items-center justify-center transition-all ${
+                    tttBoard[i] === 'X' ? 'text-indigo-400' : tttBoard[i] === 'O' ? 'text-violet-400' : 'text-slate-500'
+                }`;
+            }
+        }
+
+        window.switchCSPMode = function(mode) {
+            document.getElementById('csp-view-timetable').classList.toggle('hidden', mode !== 'timetable');
+            document.getElementById('csp-view-nqueens').classList.toggle('hidden', mode !== 'nqueens');
+
+            document.getElementById('csp-tab-timetable').className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold ${mode === 'timetable' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
+            document.getElementById('csp-tab-nqueens').className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold ${mode === 'nqueens' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
+
+            if (mode === 'nqueens') window.initNQueensBoard();
+        };
+
+        window.loadTimetablePreset = function() {
+            document.getElementById('tt-subjects').value = 'AI_Lab, Machine_Learning, Operating_Systems, Computer_Networks';
+            document.getElementById('tt-faculty').value = 'Dr_Sharma, Prof_Verma, Dr_Reddy, Prof_Anand';
+            document.getElementById('tt-rooms').value = 'Lab_101, Room_202, Room_203';
+        };
+
+        window.solveTimetableCSP = function() {
+            const subjects = document.getElementById('tt-subjects').value.split(',').map(s => s.trim()).filter(Boolean);
+            const faculty = document.getElementById('tt-faculty').value.split(',').map(s => s.trim()).filter(Boolean);
+            const rooms = document.getElementById('tt-rooms').value.split(',').map(s => s.trim()).filter(Boolean);
+            const slots = ['09:00 AM', '10:00 AM', '11:15 AM', '02:00 PM'];
+
+            const tbody = document.getElementById('tt-matrix');
+            tbody.innerHTML = '';
+
+            let assignedFaculty = new Set();
+            let assignedRooms = new Set();
+
+            for (let i = 0; i < subjects.length; i++) {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/40';
+
+                const slot = slots[i % slots.length];
+                const fac = faculty[i % faculty.length];
+                const room = rooms[i % rooms.length];
+
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-indigo-400">${slot}</td>
+                    <td class="p-3 font-semibold text-slate-200">${subjects[i]}</td>
+                    <td class="p-3 text-slate-300"><span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700">${fac}</span></td>
+                    <td class="p-3 text-emerald-400 font-mono">${room}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+            document.getElementById('tt-status').innerText = 'Conflict-Free Assignment Found';
+        };
+
+        /* N-Queens Backtracking Visualizer */
+        window.initNQueensBoard = function() {
+            const n = parseInt(document.getElementById('nq-size').value);
+            const container = document.getElementById('nq-board-container');
+            container.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+            container.innerHTML = '';
+
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    const cell = document.createElement('div');
+                    cell.id = `nq-cell-${r}-${c}`;
+                    const isDark = (r + c) % 2 === 1;
+                    cell.className = `w-full h-full rounded flex items-center justify-center text-lg font-bold transition-all ${isDark ? 'bg-slate-900' : 'bg-slate-800/60'}`;
+                    container.appendChild(cell);
+                }
+            }
+        };
+
+        window.solveNQueens = async function() {
+            const n = parseInt(document.getElementById('nq-size').value);
+            const speed = parseInt(document.getElementById('nq-speed').value);
+            window.initNQueensBoard();
+
+            let board = Array(n).fill(-1);
+            let steps = 0;
+            let backtracks = 0;
+            let solutions = 0;
+
+            function isSafe(row, col) {
+                for (let i = 0; i < row; i++) {
+                    if (board[i] === col || Math.abs(board[i] - col) === Math.abs(i - row)) return false;
+                }
+                return true;
+            }
+
+            async function backtrack(row) {
+                if (row === n) {
+                    solutions++;
+                    document.getElementById('nq-solutions').innerText = solutions;
+                    return true;
+                }
+
+                for (let col = 0; col < n; col++) {
+                    steps++;
+                    document.getElementById('nq-steps').innerText = steps;
+
+                    const cell = document.getElementById(`nq-cell-${row}-${col}`);
+                    cell.innerText = '👑';
+                    cell.classList.add('bg-emerald-500/30', 'border', 'border-emerald-500');
+                    await new Promise(r => setTimeout(r, speed));
+
+                    if (isSafe(row, col)) {
+                        board[row] = col;
+                        if (await backtrack(row + 1)) return true;
+                        board[row] = -1;
+                    }
+
+                    backtracks++;
+                    document.getElementById('nq-backtracks').innerText = backtracks;
+                    cell.innerText = '';
+                    cell.classList.remove('bg-emerald-500/30', 'border', 'border-emerald-500');
+                }
+                return false;
+            }
+
+            await backtrack(0);
+            document.getElementById('nq-status').innerText = solutions > 0 ? `Solved! First solution found in ${steps} steps.` : 'No solution exists.';
+        };
+
+        window.factsList = ['Fever', 'Cough'];
+        window.rulesList = ['Fever, Cough -> Flu', 'Flu -> Prescribe_Rest'];
+
+        window.switchLogicMode = function(mode) {
+            document.getElementById('logic-view-forward').classList.toggle('hidden', mode !== 'forward');
+            document.getElementById('logic-view-truthtable').classList.toggle('hidden', mode !== 'truthtable');
+
+            document.getElementById('logic-tab-forward').className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold ${mode === 'forward' ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
+            document.getElementById('logic-tab-truthtable').className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold ${mode === 'truthtable' ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
+        };
+
+        window.renderFactsBadges = function() {
+            const container = document.getElementById('facts-badge-container');
+            if (!container) return;
+            container.innerHTML = '';
+            window.factsList.forEach((fact, i) => {
+                const badge = document.createElement('span');
+                badge.className = 'px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 text-xs flex items-center space-x-1';
+                badge.innerHTML = `<span>${fact}</span><button onclick="window.removeFact(${i})" class="ml-1 text-slate-400 hover:text-rose-400">×</button>`;
+                container.appendChild(badge);
+            });
+        };
+
+        window.renderRulesBadges = function() {
+            const container = document.getElementById('rules-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+            window.rulesList.forEach((rule, i) => {
+                const item = document.createElement('div');
+                item.className = 'p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs flex justify-between items-center text-slate-300 font-mono';
+                item.innerHTML = `<span>${rule}</span><button onclick="window.removeRule(${i})" class="text-slate-500 hover:text-rose-400 font-sans">Delete</button>`;
+                container.appendChild(item);
+            });
+        };
+
+        window.addFact = function() {
+            const val = document.getElementById('input-new-fact').value.trim();
+            if (val && !window.factsList.includes(val)) {
+                window.factsList.push(val);
+                document.getElementById('input-new-fact').value = '';
+                window.renderFactsBadges();
+            }
+        };
+
+        window.removeFact = function(i) {
+            window.factsList.splice(i, 1);
+            window.renderFactsBadges();
+        };
+
+        window.addRule = function() {
+            const val = document.getElementById('input-new-rule').value.trim();
+            if (val && val.includes('->')) {
+                window.rulesList.push(val);
+                document.getElementById('input-new-rule').value = '';
+                window.renderRulesBadges();
+            }
+        };
+
+        window.removeRule = function(i) {
+            window.rulesList.splice(i, 1);
+            window.renderRulesBadges();
+        };
+
+        window.loadLogicPreset = function(preset) {
+            if (preset === 'medical') {
+                window.factsList = ['Fever', 'Cough'];
+                window.rulesList = ['Fever, Cough -> Flu', 'Flu -> Rest_Prescribed'];
+                document.getElementById('lv-goal').value = 'Rest_Prescribed';
+            }
+            window.renderFactsBadges();
+            window.renderRulesBadges();
+        };
+
+        window.runForwardChaining = function() {
+            const log = document.getElementById('lv-log');
+            const goal = document.getElementById('lv-goal').value.trim();
+            const facts = new Set(window.factsList);
+
+            log.innerText = '=== Starting Modus Ponens Forward Chaining ===\n';
+            log.innerText += `Initial Working Memory: [ ${Array.from(facts).join(', ')} ]\n\n`;
+
+            if (goal && facts.has(goal)) {
+                log.innerText += `SUCCESS: Goal '${goal}' was already present in initial facts!`;
+                return;
+            }
+
+            let added = true;
+            let step = 1;
+
+            while (added) {
+                added = false;
+
+                for (const rule of window.rulesList) {
+                    if (!rule.includes('->')) continue;
+                    const [premiseStr, conclusion] = rule.split('->').map(s => s.trim());
+                    const premises = premiseStr.split(',').map(s => s.trim()).filter(Boolean);
+
+                    if (premises.every(p => facts.has(p)) && !facts.has(conclusion)) {
+                        facts.add(conclusion);
+                        log.innerText += `Step ${step++}: Triggered Rule (${premiseStr} -> ${conclusion})\n`;
+                        log.innerText += `  ↳ Derived New Fact: '${conclusion}'\n`;
+                        added = true;
+
+                        if (goal && facts.has(goal)) {
+                            log.innerText += `\nSUCCESS: Goal '${goal}' successfully derived and proven true!`;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (goal && facts.has(goal)) {
+                log.innerText += `\nSUCCESS: Goal '${goal}' proven true!`;
+            } else if (goal) {
+                log.innerText += `\nFAILED: Goal '${goal}' cannot be derived from current Knowledge Base.`;
+            } else {
+                log.innerText += `\nDeduction Complete. Final Derived Facts: [ ${Array.from(facts).join(', ')} ]`;
+            }
+        };
+
+        /* Truth Table Generator */
+        window.generateTruthTable = function() {
+            const expr = document.getElementById('tt-expression').value.trim();
+            const vars = Array.from(new Set(expr.match(/[A-Z]/g) || [])).sort();
+            const numRows = Math.pow(2, vars.length);
+
+            const thead = document.getElementById('truth-table-head');
+            const tbody = document.getElementById('truth-table-body');
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            const trHead = document.createElement('tr');
+            vars.forEach(v => trHead.innerHTML += `<th class="p-3">${v}</th>`);
+            trHead.innerHTML += `<th class="p-3 text-amber-400 font-bold">${expr}</th>`;
+            thead.appendChild(trHead);
+
+            let trueCount = 0;
+
+            for (let i = 0; i < numRows; i++) {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/40';
+                const env = {};
+
+                for (let j = 0; j < vars.length; j++) {
+                    const val = Boolean((i >> (vars.length - 1 - j)) & 1);
+                    env[vars[j]] = val;
+                    tr.innerHTML += `<td class="p-2.5 ${val ? 'text-emerald-400' : 'text-slate-500'}">${val ? 'T' : 'F'}</td>`;
+                }
+
+                // Simple boolean expression evaluator
+                let evalExpr = expr;
+                vars.forEach(v => {
+                    evalExpr = evalExpr.replace(new RegExp(v, 'g'), env[v] ? 'true' : 'false');
+                });
+                evalExpr = evalExpr.replace(/AND/g, '&&').replace(/OR/g, '||').replace(/NOT/g, '!').replace(/->/g, '<=').replace(/<->/g, '===');
+
+                let result = false;
+                try {
+                    result = Boolean(eval(evalExpr));
+                } catch (e) {
+                    result = false;
+                }
+                if (result) trueCount++;
+
+                tr.innerHTML += `<td class="p-2.5 font-bold ${result ? 'text-emerald-400' : 'text-rose-400'}">${result ? 'TRUE' : 'FALSE'}</td>`;
+                tbody.appendChild(tr);
+            }
+
+            const status = document.getElementById('tt-classification');
+            status.classList.remove('hidden');
+            if (trueCount === numRows) {
+                status.className = 'p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold';
+                status.innerText = 'Classification: TAUTOLOGY (Statement is True under all assignments)';
+            } else if (trueCount === 0) {
+                status.className = 'p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold';
+                status.innerText = 'Classification: CONTRADICTION (Statement is False under all assignments)';
+            } else {
+                status.className = 'p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold';
+                status.innerText = `Classification: CONTINGENCY (${trueCount}/${numRows} True evaluation rows)`;
+            }
+        };
+
+        window.updateBayes = function() {
+            const pa = parseFloat(document.getElementById('bayes-pa').value);
+            const pba = parseFloat(document.getElementById('bayes-pba').value);
+            const pbna = parseFloat(document.getElementById('bayes-pbna').value);
+
+            document.getElementById('bayes-pa-val').innerText = pa.toFixed(3);
+            document.getElementById('bayes-pba-val').innerText = pba.toFixed(2);
+            document.getElementById('bayes-pbna-val').innerText = pbna.toFixed(2);
+
+            const pb = (pba * pa) + (pbna * (1 - pa));
+            const pab = (pba * pa) / pb;
+
+            document.getElementById('bayes-result').innerText = `${(pab * 100).toFixed(2)}%`;
+            document.getElementById('bayes-formula').innerText = `P(A|B) = (${pba} * ${pa}) / ${pb.toFixed(4)}`;
+        };
+
+        window.updateEntropy = function() {
+            const raw = document.getElementById('entropy-samples').value.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+            const total = raw.reduce((a, b) => a + b, 0);
+
+            if (total === 0 || raw.length === 0) {
+                document.getElementById('entropy-result').innerText = '0 bits';
+                return;
+            }
+
+            let entropy = 0;
+            raw.forEach(count => {
+                const p = count / total;
+                entropy -= p * Math.log2(p);
+            });
+
+            document.getElementById('entropy-result').innerText = `${entropy.toFixed(3)} bits`;
+            document.getElementById('entropy-formula').innerText = `H(S) = - ∑ (p_i * log2(p_i)) across total ${total} samples`;
+        };
+
+        let searchChart = null;
+        let radarChart = null;
+
+        window.runAILabSuite = function() {
+            const ctx1 = document.getElementById('chart-search-nodes');
+            const ctx2 = document.getElementById('chart-radar-profile');
+            if (!ctx1 || !ctx2) return;
+
+            if (searchChart) searchChart.destroy();
+            if (radarChart) radarChart.destroy();
+
+            searchChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['A* Search', 'BFS', 'DFS', 'Uniform Cost', 'Greedy'],
+                    datasets: [{
+                        label: 'Avg Nodes Explored',
+                        data: [42, 185, 210, 140, 58],
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                        borderColor: '#6366f1',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.05)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: 'rgba(255,255,255,0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            radarChart = new Chart(ctx2, {
+                type: 'radar',
+                data: {
+                    labels: ['Time Speed', 'Path Optimality', 'Memory Efficiency', 'Pruning Rate', 'Completeness'],
+                    datasets: [{
+                        label: 'A* Search',
+                        data: [90, 100, 85, 95, 100],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)'
+                    }, {
+                        label: 'Alpha-Beta Minimax',
+                        data: [95, 100, 90, 88, 100],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
+                            },
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        /* Initialize icons and bootstrap on load */
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initParticleCanvas();
+            window.initPathfinderGrid();
+            window.resetTTT();
+            window.renderFactsBadges();
+            window.renderRulesBadges();
+            window.updateBayes();
+            window.updateEntropy();
+        });
+    </script>
+</body>
+
+</html>
